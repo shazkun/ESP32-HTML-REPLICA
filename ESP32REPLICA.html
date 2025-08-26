@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typing with Speech Feedback</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      color: #333;
+      padding: 2rem;
+      border-radius: 20px;
+      width: 450px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 1.5rem;
+      color: #444;
+    }
+    textarea {
+      width: 50%;
+      height: 160px;
+      border-radius: 12px;
+      border: 2px solid #ddd;
+      padding: 1rem;
+      font-size: 1.1rem;
+      outline: none;
+      resize: none;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+    textarea:focus {
+      border-color: #2575fc;
+      box-shadow: 0 0 10px rgba(37, 117, 252, 0.3);
+    }
+    .hint {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Typing with Speech Feedback</h2>
+    <textarea id="inputBox" placeholder="Start typing..."></textarea>
+    <div class="hint">🔊 Letters are spoken as you type. After 2s pause, full text is read.</div>
+  </div>
+
+  <script>
+    const inputBox = document.getElementById("inputBox");
+    let ttsTimer = null;
+
+    inputBox.addEventListener("input", (e) => {
+      const text = e.target.value;
+      if (!text) return;
+
+      // Speak last typed character
+      const lastChar = text[text.length - 1];
+      let speakChar = lastChar;
+      if (lastChar === " ") speakChar = "space";
+      if (lastChar === "\n") speakChar = "enter";
+      speak(speakChar);
+
+      // Reset timer for full text
+      if (ttsTimer) clearTimeout(ttsTimer);
+      ttsTimer = setTimeout(() => {
+        const fullText = inputBox.value.trim();
+        if (fullText) speak(fullText);
+      }, 2000);
+    });
+
+    function speak(text) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US"; // English voice
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
